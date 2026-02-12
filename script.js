@@ -22,34 +22,7 @@ const state = {
     isChatOpen: false,
     messages: JSON.parse(localStorage.getItem('chatMessages')) || [],
     currentTab: 'pending',
-    questions: JSON.parse(localStorage.getItem('qa_questions')) || [
-        {
-            id: '1',
-            text: '請問這份簡報之後會提供下載嗎？',
-            category: '行政相關',
-            timestamp: new Date().toISOString(),
-            status: 'pending',
-            isHidden: false,
-            suggestedReplies: [
-                '會的，會後將統一寄發 Email。',
-                '簡報連結已置於活動官網。',
-                '主要內容會釋出，部分敏顯資料會移除。'
-            ]
-        },
-        {
-            id: '2',
-            text: '可以詳細解釋一下 n8n 的 webhook 設定嗎？',
-            category: '技術細節',
-            timestamp: new Date(Date.now() - 3600000).toISOString(),
-            status: 'pending',
-            isHidden: false,
-            suggestedReplies: [
-                '好的，我們稍後的 Demo 環節會詳細示範。',
-                '這是個好問題，我們可以會後交流。',
-                '請參考官方文件關於 Webhook 的章節。'
-            ]
-        }
-    ]
+    questions: JSON.parse(localStorage.getItem('qa_questions')) || []
 };
 
 // Helper to save state
