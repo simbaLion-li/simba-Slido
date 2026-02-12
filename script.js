@@ -596,11 +596,12 @@ window.markAsResolved = function (id) {
 // --- n8n Polling (Speaker Dashboard) ---
 // Fetches latest questions from n8n backend and replaces local state
 function fetchPendingQuestions() {
-    if (!USE_N8N || !N8N_BASE_URL) return;
+    if (!USE_N8N || !N8N_BASE_URL || !syncEnabled) return;
 
     fetch(N8N_ENDPOINTS.pending)
         .then(res => res.json())
         .then(data => {
+            if (!syncEnabled) return; // 已關閉同步，忽略回應
             if (data.questions && Array.isArray(data.questions)) {
                 state.questions = data.questions;
                 saveQuestions();
@@ -612,36 +613,37 @@ function fetchPendingQuestions() {
 }
 
 // --- n8n Polling Toggle ---
-let syncEnabled = USE_N8N && !!N8N_BASE_URL;
+let syncEnabled = false;
 let syncIntervalId = null;
 
 function startSync() {
     if (syncIntervalId) return;
-    fetchPendingQuestions(); // 立即同步一次
-    syncIntervalId = setInterval(fetchPendingQuestions, 10000);
     syncEnabled = true;
+    fetchPendingQuestions();
+    syncIntervalId = setInterval(fetchPendingQuestions, 10000);
     updateSyncButton(true);
+    console.log('[Sync] Started');
 }
 
 function stopSync() {
+    syncEnabled = false;
     if (syncIntervalId) {
         clearInterval(syncIntervalId);
         syncIntervalId = null;
     }
-    syncEnabled = false;
     updateSyncButton(false);
+    console.log('[Sync] Stopped');
 }
 
 function updateSyncButton(isOn) {
     const btn = document.getElementById('syncToggleBtn');
-    const indicator = document.getElementById('syncIndicator');
     if (!btn) return;
 
     if (isOn) {
         btn.style.border = '1px solid #bbf7d0';
         btn.style.background = '#dcfce7';
         btn.style.color = '#16a34a';
-        btn.innerHTML = '<span id="syncIndicator" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#16a34a; animation: pulse 1.5s infinite;"></span> 自動同步：ON';
+        btn.innerHTML = '<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#16a34a; animation: pulse 1.5s infinite;"></span> 自動同步：ON';
     } else {
         btn.style.border = '1px solid #e2e8f0';
         btn.style.background = '#f1f5f9';
@@ -651,6 +653,7 @@ function updateSyncButton(isOn) {
 }
 
 window.toggleSync = function () {
+    console.log('[Sync] Toggle clicked, current state:', syncEnabled);
     if (syncEnabled) {
         stopSync();
     } else {
