@@ -478,6 +478,7 @@ window.toggleVisibility = function (id) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: id, isHidden: state.questions[qIndex].isHidden })
             }).catch(err => console.error('n8n hide error:', err));
+            resetSyncTimer();
         }
     }
 }
@@ -529,6 +530,7 @@ window.handleFeedback = function (btn, isLike) {
                             suggested_replies: ['好的，我們會再補充說明', '請參考這份文件', '這個觀點很有趣']
                         })
                     }).catch(err => console.error('n8n escalation error:', err));
+                    resetSyncTimer();
                 }
             }
         }
@@ -577,6 +579,7 @@ window.markAsResolved = function (id) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: id })
             }).catch(err => console.error('n8n resolve error:', err));
+            resetSyncTimer();
         }
     }
 }
@@ -630,6 +633,14 @@ function stopSync() {
     }
     updateSyncButton(false);
     console.log('[Sync] Stopped');
+}
+
+// 重置同步計時器：按下操作按鈕後延後下次同步，避免讀到尚未更新的 Google Sheets
+function resetSyncTimer() {
+    if (!syncEnabled || !syncIntervalId) return;
+    clearInterval(syncIntervalId);
+    syncIntervalId = setInterval(fetchPendingQuestions, 10000);
+    console.log('[Sync] Timer reset');
 }
 
 function updateSyncButton(isOn) {
