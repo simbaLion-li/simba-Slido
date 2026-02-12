@@ -493,7 +493,7 @@ window.clearAllData = function () {
 }
 
 window.toggleVisibility = function (id) {
-    const qIndex = state.questions.findIndex(q => q.id === id);
+    const qIndex = state.questions.findIndex(q => String(q.id) === String(id));
     if (qIndex > -1) {
         state.questions[qIndex].isHidden = !state.questions[qIndex].isHidden;
         saveQuestions();
@@ -586,7 +586,7 @@ window.switchTab = function (tabName) {
 }
 
 window.markAsResolved = function (id) {
-    const qIndex = state.questions.findIndex(q => q.id === id);
+    const qIndex = state.questions.findIndex(q => String(q.id) === String(id));
     if (qIndex > -1) {
         state.questions[qIndex].status = 'resolved';
         saveQuestions();
@@ -613,7 +613,11 @@ function fetchPendingQuestions() {
         .then(data => {
             if (!syncEnabled) return; // 已關閉同步，忽略回應
             if (data.questions && Array.isArray(data.questions)) {
-                state.questions = data.questions;
+                // 確保所有 ID 都是字串
+                state.questions = data.questions.map(q => ({
+                    ...q,
+                    id: String(q.id)
+                }));
                 saveQuestions();
                 if (speakerQuestionsGrid) renderSpeakerDashboard();
                 if (document.getElementById('publicQuestionsGrid')) renderPublicQuestions();
