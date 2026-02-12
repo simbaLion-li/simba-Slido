@@ -392,38 +392,28 @@ function createQuestionCard(question) {
     card.classList.add('question-card');
     if (question.isHidden) {
         card.style.opacity = '0.6';
-        card.style.borderLeftColor = '#94a3b8';
+        card.style.borderLeftColor = '#94a3b8'; // Grey out
     }
 
     const timeString = new Date(question.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const safeId = String(question.id || '').replace(/'/g, "\\'");
 
     const actionButton = question.status === 'pending'
-        ? `<button onclick="markAsResolved('${safeId}')" style="color: var(--accent-success); border: none; background: none; cursor: pointer; font-weight: 500;">✓ 標記為已回答</button>`
+        ? `<button onclick="markAsResolved('${question.id}')" style="color: var(--accent-success); border: none; background: none; cursor: pointer; font-weight: 500;">✓ 標記為已回答</button>`
         : `<span style="color: var(--text-secondary); font-size: 0.9rem;">已於 ${new Date().toLocaleTimeString()} 解決</span>`;
 
-    const visibilityBtn = `<button onclick="toggleVisibility('${safeId}')" style="color: ${question.isHidden ? 'var(--primary-color)' : '#64748B'}; border: none; background: none; cursor: pointer; font-size: 0.9rem; margin-right: 1rem;">
+    const visibilityBtn = `<button onclick="toggleVisibility('${question.id}')" style="color: ${question.isHidden ? 'var(--primary-color)' : '#64748B'}; border: none; background: none; cursor: pointer; font-size: 0.9rem; margin-right: 1rem;">
         ${question.isHidden ? '👁️ 解除隱藏' : '🚫 隱藏'}
     </button>`;
 
-    // 防禦性處理：確保 suggestedReplies 是陣列
-    let replies = question.suggestedReplies;
-    if (typeof replies === 'string') {
-        try { replies = JSON.parse(replies); } catch { replies = []; }
-    }
-    if (!Array.isArray(replies)) {
-        replies = ['稍後回答', '請參考補充資料', '這是一個很好的問題'];
-    }
-
     card.innerHTML = `
         <div class="card-header">
-            <span class="category-tag">${question.category || '未分類'} ${question.isHidden ? '(隱藏中)' : ''}</span>
+            <span class="category-tag">${question.category} ${question.isHidden ? '(隱藏中)' : ''}</span>
             <span>${timeString}</span>
         </div>
-        <div class="question-text">${question.text || ''}</div>
+        <div class="question-text">${question.text}</div>
         <div class="suggested-replies">
             <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">建議回覆：</div>
-            ${replies.map(reply => `
+            ${question.suggestedReplies.map(reply => `
                 <button class="reply-btn" onclick="useReply(this)">${reply}</button>
             `).join('')}
         </div>
@@ -493,7 +483,7 @@ window.clearAllData = function () {
 }
 
 window.toggleVisibility = function (id) {
-    const qIndex = state.questions.findIndex(q => String(q.id) === String(id));
+    const qIndex = state.questions.findIndex(q => q.id === id);
     if (qIndex > -1) {
         state.questions[qIndex].isHidden = !state.questions[qIndex].isHidden;
         saveQuestions();
@@ -586,7 +576,7 @@ window.switchTab = function (tabName) {
 }
 
 window.markAsResolved = function (id) {
-    const qIndex = state.questions.findIndex(q => String(q.id) === String(id));
+    const qIndex = state.questions.findIndex(q => q.id === id);
     if (qIndex > -1) {
         state.questions[qIndex].status = 'resolved';
         saveQuestions();
@@ -613,11 +603,7 @@ function fetchPendingQuestions() {
         .then(data => {
             if (!syncEnabled) return; // 已關閉同步，忽略回應
             if (data.questions && Array.isArray(data.questions)) {
-                // 確保所有 ID 都是字串
-                state.questions = data.questions.map(q => ({
-                    ...q,
-                    id: String(q.id)
-                }));
+                state.questions = data.questions;
                 saveQuestions();
                 if (speakerQuestionsGrid) renderSpeakerDashboard();
                 if (document.getElementById('publicQuestionsGrid')) renderPublicQuestions();
