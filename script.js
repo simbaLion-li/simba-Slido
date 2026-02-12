@@ -13,7 +13,8 @@ const N8N_ENDPOINTS = {
     pending: `${N8N_BASE_URL}/qa/pending`,   // GET:  讀取待回覆
     resolve: `${N8N_BASE_URL}/qa/resolve`,   // POST: 標記已解決
     escalate: `${N8N_BASE_URL}/qa/escalate`, // POST: 直接寫入 (跳過 AI)
-    clear: `${N8N_BASE_URL}/qa/clear`         // POST: 清除所有資料
+    clear: `${N8N_BASE_URL}/qa/clear`,        // POST: 清除所有資料
+    hide: `${N8N_BASE_URL}/qa/hide`            // POST: 切換隱藏狀態
 };
 
 // --- Global State ---
@@ -483,13 +484,11 @@ window.clearAllData = function () {
 }
 
 window.toggleVisibility = function (id) {
-    const qIndex = state.questions.findIndex(q => q.id === id);
+    const qIndex = state.questions.findIndex(q => String(q.id) === String(id));
     if (qIndex > -1) {
         state.questions[qIndex].isHidden = !state.questions[qIndex].isHidden;
         saveQuestions();
         renderSpeakerDashboard();
-        // Since public board does not auto-refresh strictly in this mock without event listeners, 
-        // we manually call it if it exists.
         if (document.getElementById('publicQuestionsGrid')) renderPublicQuestions();
     }
 }
@@ -576,7 +575,7 @@ window.switchTab = function (tabName) {
 }
 
 window.markAsResolved = function (id) {
-    const qIndex = state.questions.findIndex(q => q.id === id);
+    const qIndex = state.questions.findIndex(q => String(q.id) === String(id));
     if (qIndex > -1) {
         state.questions[qIndex].status = 'resolved';
         saveQuestions();
