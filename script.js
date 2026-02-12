@@ -12,7 +12,8 @@ const N8N_ENDPOINTS = {
     ask: `${N8N_BASE_URL}/qa`,              // POST: 提交問題 (AI 處理)
     pending: `${N8N_BASE_URL}/qa/pending`,   // GET:  讀取待回覆
     resolve: `${N8N_BASE_URL}/qa/resolve`,   // POST: 標記已解決
-    escalate: `${N8N_BASE_URL}/qa/escalate`  // POST: 直接寫入 (跳過 AI)
+    escalate: `${N8N_BASE_URL}/qa/escalate`, // POST: 直接寫入 (跳過 AI)
+    clear: `${N8N_BASE_URL}/qa/clear`         // POST: 清除所有資料
 };
 
 // --- Global State ---
@@ -458,12 +459,26 @@ window.clearAllData = function () {
         state.questions = [];
         state.messages = [];
         localStorage.removeItem('chatMessages');
-        saveQuestions(); // Update Questions LS
+        saveQuestions();
         renderSpeakerDashboard();
-        // Clear Public Board mock
         const publicGrid = document.getElementById('publicQuestionsGrid');
         if (publicGrid) publicGrid.innerHTML = '';
-        alert('資料已清除，場次重置完成。');
+
+        // n8n: 同步清除 Google Sheets
+        if (USE_N8N && N8N_BASE_URL) {
+            fetch(N8N_ENDPOINTS.clear, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'clear' })
+            })
+                .then(() => alert('資料已清除（含 Google Sheets），場次重置完成。'))
+                .catch(err => {
+                    console.error('n8n clear error:', err);
+                    alert('本地資料已清除，但 Google Sheets 清除失敗，請手動清除。');
+                });
+        } else {
+            alert('資料已清除，場次重置完成。');
+        }
     }
 }
 
