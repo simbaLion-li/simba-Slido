@@ -488,16 +488,12 @@ window.handleFeedback = function (btn, isLike) {
     } else {
         container.innerHTML = '<span style="color: #F59E0B; font-size: 0.85rem;">已收到回饋，此問題已轉送給講者。</span>';
 
-        // Logic: Find the original question text (Previous sibling of the system message parent)
-        // Structure: .message.user -> .message.system(contains .feedback-actions)
-        // So getting the system message div, then previous sibling.
         const systemMsgDiv = container.closest('.message.system');
         if (systemMsgDiv) {
             const userMsgDiv = systemMsgDiv.previousElementSibling;
             if (userMsgDiv && userMsgDiv.classList.contains('user')) {
                 const questionText = userMsgDiv.textContent;
 
-                // Add to Board
                 const newQuestion = {
                     id: Date.now().toString(),
                     text: questionText,
@@ -509,14 +505,22 @@ window.handleFeedback = function (btn, isLike) {
                 };
 
                 state.questions.unshift(newQuestion);
-                saveQuestions(); // Sync to storage
+                saveQuestions();
 
-                // Refresh Views
                 if (typeof renderPublicQuestions === 'function' && document.getElementById('publicQuestionsGrid')) {
                     renderPublicQuestions();
                 }
                 if (typeof renderSpeakerDashboard === 'function' && document.getElementById('speakerQuestionsGrid')) {
                     renderSpeakerDashboard();
+                }
+
+                // n8n: 同步寫入 Google Sheets
+                if (USE_N8N && N8N_BASE_URL) {
+                    fetch(N8N_ENDPOINTS.ask, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ question: questionText, source: 'dislike_escalation' })
+                    }).catch(err => console.error('n8n dislike escalation error:', err));
                 }
             }
         }
