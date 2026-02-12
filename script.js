@@ -603,7 +603,15 @@ function fetchPendingQuestions() {
         .then(data => {
             if (!syncEnabled) return; // 已關閉同步，忽略回應
             if (data.questions && Array.isArray(data.questions)) {
-                state.questions = data.questions;
+                // 合併：保留本地 isHidden 狀態
+                const localMap = new Map(state.questions.map(q => [q.id, q]));
+                state.questions = data.questions.map(remote => {
+                    const local = localMap.get(remote.id);
+                    return {
+                        ...remote,
+                        isHidden: local ? local.isHidden : false
+                    };
+                });
                 saveQuestions();
                 if (speakerQuestionsGrid) renderSpeakerDashboard();
                 if (document.getElementById('publicQuestionsGrid')) renderPublicQuestions();
