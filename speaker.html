@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>講者控制台 | Speaker Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div>
+                <h1 style="margin: 0;">待回覆問題</h1>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem;">來自聽眾的即時提問</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <a href="index.html" style="text-decoration: none; display: flex; align-items: center;">
+                    <button
+                        style="padding: 0.5rem 1rem; border: 1px solid #7C3AED; color: #7C3AED; background: white; border-radius: 6px; cursor: pointer; height: 100%;">
+                        ← 回到聽眾頁面
+                    </button>
+                </a>
+                <button onclick="exportToCSV()"
+                    style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; border-radius: 6px; cursor: pointer; color: #475569;">
+                    匯出 CSV
+                </button>
+                <button onclick="clearAllData()"
+                    style="padding: 0.5rem 1rem; border: 1px solid #fee2e2; background: #fef2f2; border-radius: 6px; cursor: pointer; color: #dc2626;">
+                    清除所有資料
+                </button>
+                <button onclick="location.reload()"
+                    style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; border-radius: 6px; cursor: pointer;">
+                    重新整理
+                </button>
+            </div>
+        </header>
+
+        <div class="tabs" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; border-bottom: 1px solid #e2e8f0;">
+            <button class="tab-btn active" data-tab="pending" onclick="switchTab('pending')"
+                style="padding: 0.5rem 1rem; border: none; background: none; border-bottom: 2px solid var(--primary-color); font-weight: 600; color: var(--primary-color); cursor: pointer;">
+                待回覆問題
+            </button>
+            <button class="tab-btn" data-tab="resolved" onclick="switchTab('resolved')"
+                style="padding: 0.5rem 1rem; border: none; background: none; border-bottom: 2px solid transparent; color: var(--text-secondary); cursor: pointer;">
+                已解決
+            </button>
+        </div>
+
+        <!-- Question Grid -->
+        <div class="questions-grid" id="speakerQuestionsGrid">
+            <!-- Questions will be injected here by JS -->
+            <div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 2rem;">
+                載入中...
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Special initialization for Speaker Page
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSpeakerDashboard();
+        });
+    </script>
+</body>
+
+</html>

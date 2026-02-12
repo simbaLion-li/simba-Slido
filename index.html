@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>簡報問答互動 | Audience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Hero Section (Landing) -->
+    <div
+        style="display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center; padding: 4rem 1rem 2rem 1rem;">
+        <h1
+            style="font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            問答互動系統</h1>
+        <p style="color: var(--text-secondary); max-width: 600px;">
+            歡迎參與本次簡報。請點擊右下角的聊天圖示提出您的問題，AI 助理將會協助回答，或將問題轉交給講者。
+        </p>
+    </div>
+
+    <!-- Public Question Board -->
+    <div class="dashboard-container" style="padding-top: 0;">
+        <h2 style="text-align: center; color: var(--text-primary); margin-bottom: 2rem; font-size: 1.5rem;">
+            現場提問牆
+        </h2>
+        <div class="questions-grid" id="publicQuestionsGrid">
+            <!-- Questions injected by JS -->
+            <div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);">
+                載入中...
+            </div>
+        </div>
+    </div>
+
+    <!-- Speaker Login Button -->
+    <button id="speakerLoginBtn" class="speaker-login-btn">
+        講者登入
+    </button>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget-container">
+        <!-- Chat Window -->
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <h3>提問助理</h3>
+                <button class="close-btn" id="closeChatBtn">&times;</button>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="message system">
+                    嗨！我是您的簡報助理。有什麼問題想問講者嗎？我可以先試著為您解答喔！😊
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <textarea id="questionInput" placeholder="輸入您的問題..." rows="1"></textarea>
+                <button class="send-btn" id="sendMessageBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Toggle Button -->
+        <button class="chat-toggle-btn" id="toggleChatBtn" aria-label="Open Chat">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>講者登入</h2>
+            <p>請輸入存取密碼以進入講者控制台</p>
+            <input type="password" id="passwordInput" placeholder="Password">
+            <button id="submitPasswordBtn">確認</button>
+            <p id="loginError" class="error-msg"></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
