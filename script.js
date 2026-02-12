@@ -13,7 +13,8 @@ const N8N_ENDPOINTS = {
     pending: `${N8N_BASE_URL}/qa/pending`,   // GET:  讀取待回覆
     resolve: `${N8N_BASE_URL}/qa/resolve`,   // POST: 標記已解決
     escalate: `${N8N_BASE_URL}/qa/escalate`, // POST: 直接寫入 (跳過 AI)
-    clear: `${N8N_BASE_URL}/qa/clear`         // POST: 清除所有資料
+    clear: `${N8N_BASE_URL}/qa/clear`,        // POST: 清除所有資料
+    hide: `${N8N_BASE_URL}/qa/hide`            // POST: 切換隱藏狀態
 };
 
 // --- Global State ---
@@ -488,9 +489,16 @@ window.toggleVisibility = function (id) {
         state.questions[qIndex].isHidden = !state.questions[qIndex].isHidden;
         saveQuestions();
         renderSpeakerDashboard();
-        // Since public board does not auto-refresh strictly in this mock without event listeners, 
-        // we manually call it if it exists.
         if (document.getElementById('publicQuestionsGrid')) renderPublicQuestions();
+
+        // n8n: 同步隱藏狀態到 Google Sheets
+        if (USE_N8N && N8N_BASE_URL) {
+            fetch(N8N_ENDPOINTS.hide, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id, isHidden: state.questions[qIndex].isHidden })
+            }).catch(err => console.error('n8n hide error:', err));
+        }
     }
 }
 
