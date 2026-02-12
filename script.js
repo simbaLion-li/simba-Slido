@@ -370,27 +370,34 @@ function createQuestionCard(question) {
     }
 
     const timeString = new Date(question.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const questionText = question.text || question.Question || '';
+    const replies = Array.isArray(question.suggestedReplies) ? question.suggestedReplies : [];
+    const qId = String(question.id).replace(/'/g, "\\'");
 
     const actionButton = question.status === 'pending'
-        ? `<button onclick="markAsResolved('${question.id}')" style="color: var(--accent-success); border: none; background: none; cursor: pointer; font-weight: 500;">✓ 標記為已回答</button>`
+        ? `<button onclick="markAsResolved('${qId}')" style="color: var(--accent-success); border: none; background: none; cursor: pointer; font-weight: 500;">✓ 標記為已回答</button>`
         : `<span style="color: var(--text-secondary); font-size: 0.9rem;">已於 ${new Date().toLocaleTimeString()} 解決</span>`;
 
-    const visibilityBtn = `<button onclick="toggleVisibility('${question.id}')" style="color: ${question.isHidden ? 'var(--primary-color)' : '#64748B'}; border: none; background: none; cursor: pointer; font-size: 0.9rem; margin-right: 1rem;">
+    const visibilityBtn = `<button onclick="toggleVisibility('${qId}')" style="color: ${question.isHidden ? 'var(--primary-color)' : '#64748B'}; border: none; background: none; cursor: pointer; font-size: 0.9rem; margin-right: 1rem;">
         ${question.isHidden ? '👁️ 解除隱藏' : '🚫 隱藏'}
     </button>`;
 
-    card.innerHTML = `
-        <div class="card-header">
-            <span class="category-tag">${question.category} ${question.isHidden ? '(隱藏中)' : ''}</span>
-            <span>${timeString}</span>
-        </div>
-        <div class="question-text">${question.text}</div>
-        <div class="suggested-replies">
+    const repliesHtml = replies.length > 0
+        ? `<div class="suggested-replies">
             <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">建議回覆：</div>
-            ${question.suggestedReplies.map(reply => `
+            ${replies.map(reply => `
                 <button class="reply-btn" onclick="useReply(this)">${reply}</button>
             `).join('')}
+        </div>`
+        : '';
+
+    card.innerHTML = `
+        <div class="card-header">
+            <span class="category-tag">${question.category || '未分類'} ${question.isHidden ? '(隱藏中)' : ''}</span>
+            <span>${timeString}</span>
         </div>
+        <div class="question-text">${questionText}</div>
+        ${repliesHtml}
         <div style="margin-top: 1rem; text-align: right; display: flex; justify-content: flex-end; align-items: center;">
             ${visibilityBtn}
             ${actionButton}
