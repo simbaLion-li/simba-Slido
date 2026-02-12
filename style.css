@@ -456,3 +456,16 @@ body {
 .feedback-btn.dislike:hover {
     color: #EF4444;
 }
+
+/* Sync indicator pulse */
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}

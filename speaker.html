@@ -28,6 +28,12 @@
                     style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; border-radius: 6px; cursor: pointer; color: #475569;">
                     匯出 CSV
                 </button>
+                <button id="syncToggleBtn" onclick="toggleSync()"
+                    style="padding: 0.5rem 1rem; border: 1px solid #bbf7d0; background: #dcfce7; border-radius: 6px; cursor: pointer; color: #16a34a; font-weight: 600; display: flex; align-items: center; gap: 0.35rem;">
+                    <span id="syncIndicator"
+                        style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#16a34a; animation: pulse 1.5s infinite;"></span>
+                    自動同步：ON
+                </button>
                 <button onclick="clearAllData()"
                     style="padding: 0.5rem 1rem; border: 1px solid #fee2e2; background: #fef2f2; border-radius: 6px; cursor: pointer; color: #dc2626;">
                     清除所有資料

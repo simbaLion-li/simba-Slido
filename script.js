@@ -611,9 +611,60 @@ function fetchPendingQuestions() {
         .catch(err => console.error('n8n pending fetch error:', err));
 }
 
-// Auto-poll every 10 seconds if n8n is enabled and we're on the speaker page
-if (USE_N8N && N8N_BASE_URL) {
-    setInterval(fetchPendingQuestions, 10000);
+// --- n8n Polling Toggle ---
+let syncEnabled = USE_N8N && !!N8N_BASE_URL;
+let syncIntervalId = null;
+
+function startSync() {
+    if (syncIntervalId) return;
+    fetchPendingQuestions(); // 立即同步一次
+    syncIntervalId = setInterval(fetchPendingQuestions, 10000);
+    syncEnabled = true;
+    updateSyncButton(true);
+}
+
+function stopSync() {
+    if (syncIntervalId) {
+        clearInterval(syncIntervalId);
+        syncIntervalId = null;
+    }
+    syncEnabled = false;
+    updateSyncButton(false);
+}
+
+function updateSyncButton(isOn) {
+    const btn = document.getElementById('syncToggleBtn');
+    const indicator = document.getElementById('syncIndicator');
+    if (!btn) return;
+
+    if (isOn) {
+        btn.style.border = '1px solid #bbf7d0';
+        btn.style.background = '#dcfce7';
+        btn.style.color = '#16a34a';
+        btn.innerHTML = '<span id="syncIndicator" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#16a34a; animation: pulse 1.5s infinite;"></span> 自動同步：ON';
+    } else {
+        btn.style.border = '1px solid #e2e8f0';
+        btn.style.background = '#f1f5f9';
+        btn.style.color = '#64748b';
+        btn.innerHTML = '<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#94a3b8;"></span> 自動同步：OFF';
+    }
+}
+
+window.toggleSync = function () {
+    if (syncEnabled) {
+        stopSync();
+    } else {
+        if (!USE_N8N || !N8N_BASE_URL) {
+            alert('請先設定 n8n Webhook URL 才能啟用自動同步。');
+            return;
+        }
+        startSync();
+    }
+};
+
+// Auto-start polling if n8n is enabled and we're on the speaker page
+if (USE_N8N && N8N_BASE_URL && speakerQuestionsGrid) {
+    startSync();
 }
 
 // --- Login Modal Implementations ---
