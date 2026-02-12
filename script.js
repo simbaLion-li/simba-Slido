@@ -464,7 +464,7 @@ window.clearAllData = function () {
 }
 
 window.toggleVisibility = function (id) {
-    const qIndex = state.questions.findIndex(q => q.id === id);
+    const qIndex = state.questions.findIndex(q => String(q.id) === String(id));
     if (qIndex > -1) {
         state.questions[qIndex].isHidden = !state.questions[qIndex].isHidden;
         saveQuestions();
@@ -564,7 +564,7 @@ window.switchTab = function (tabName) {
 }
 
 window.markAsResolved = function (id) {
-    const qIndex = state.questions.findIndex(q => q.id === id);
+    const qIndex = state.questions.findIndex(q => String(q.id) === String(id));
     if (qIndex > -1) {
         state.questions[qIndex].status = 'resolved';
         saveQuestions();
@@ -591,9 +591,10 @@ function fetchPendingQuestions() {
         .then(data => {
             if (!syncEnabled) return; // 已關閉同步，忽略回應
             if (data.questions && Array.isArray(data.questions)) {
-                // 合併：保留本地 isHidden 狀態
-                const localMap = new Map(state.questions.map(q => [q.id, q]));
+                // 合併：保留本地 isHidden 狀態 (ID 統一轉 string)
+                const localMap = new Map(state.questions.map(q => [String(q.id), q]));
                 state.questions = data.questions.map(remote => {
+                    remote.id = String(remote.id);
                     const local = localMap.get(remote.id);
                     return {
                         ...remote,
