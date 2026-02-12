@@ -484,12 +484,21 @@ window.clearAllData = function () {
 }
 
 window.toggleVisibility = function (id) {
-    const qIndex = state.questions.findIndex(q => String(q.id) === String(id));
+    const qIndex = state.questions.findIndex(q => q.id === id);
     if (qIndex > -1) {
         state.questions[qIndex].isHidden = !state.questions[qIndex].isHidden;
         saveQuestions();
         renderSpeakerDashboard();
         if (document.getElementById('publicQuestionsGrid')) renderPublicQuestions();
+
+        // n8n: 同步隱藏狀態到 Google Sheets
+        if (USE_N8N && N8N_BASE_URL) {
+            fetch(N8N_ENDPOINTS.hide, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id, isHidden: state.questions[qIndex].isHidden })
+            }).catch(err => console.error('n8n hide error:', err));
+        }
     }
 }
 
@@ -575,7 +584,7 @@ window.switchTab = function (tabName) {
 }
 
 window.markAsResolved = function (id) {
-    const qIndex = state.questions.findIndex(q => String(q.id) === String(id));
+    const qIndex = state.questions.findIndex(q => q.id === id);
     if (qIndex > -1) {
         state.questions[qIndex].status = 'resolved';
         saveQuestions();
