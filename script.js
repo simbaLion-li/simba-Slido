@@ -9,9 +9,10 @@
 const USE_N8N = true;
 const N8N_BASE_URL = 'https://j2550420-n8n-free.hf.space/webhook'; // 您的 n8n Webhook URL
 const N8N_ENDPOINTS = {
-    ask: `${N8N_BASE_URL}/qa`,           // POST: 提交問題
-    pending: `${N8N_BASE_URL}/qa/pending`, // GET:  讀取待回覆
-    resolve: `${N8N_BASE_URL}/qa/resolve`  // POST: 標記已解決
+    ask: `${N8N_BASE_URL}/qa`,              // POST: 提交問題 (AI 處理)
+    pending: `${N8N_BASE_URL}/qa/pending`,   // GET:  讀取待回覆
+    resolve: `${N8N_BASE_URL}/qa/resolve`,   // POST: 標記已解決
+    escalate: `${N8N_BASE_URL}/qa/escalate`  // POST: 直接寫入 (跳過 AI)
 };
 
 // --- Global State ---
@@ -514,13 +515,17 @@ window.handleFeedback = function (btn, isLike) {
                     renderSpeakerDashboard();
                 }
 
-                // n8n: 同步寫入 Google Sheets
+                // n8n: 直接寫入 Google Sheets (跳過 AI)
                 if (USE_N8N && N8N_BASE_URL) {
-                    fetch(N8N_ENDPOINTS.ask, {
+                    fetch(N8N_ENDPOINTS.escalate, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ question: questionText, source: 'dislike_escalation' })
-                    }).catch(err => console.error('n8n dislike escalation error:', err));
+                        body: JSON.stringify({
+                            question: questionText,
+                            category: '待解疑問 (回饋轉送)',
+                            suggested_replies: ['好的，我們會再補充說明', '請參考這份文件', '這個觀點很有趣']
+                        })
+                    }).catch(err => console.error('n8n escalation error:', err));
                 }
             }
         }
