@@ -53,7 +53,10 @@ body {
 
 .chat-window {
     width: 380px;
-    height: 520px;
+    max-width: calc(100vw - 4rem);
+    height: auto;
+    max-height: 80vh;
+    min-height: 400px;
     background: white;
     border-radius: 16px;
     box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
@@ -67,7 +70,8 @@ body {
     transform: scale(0.9) translateY(20px);
     pointer-events: none;
     position: absolute;
-    bottom: 70px;
+    bottom: 80px;
+    right: 0;
 }
 
 .chat-window.active {
@@ -467,5 +471,22 @@ body {
 
     50% {
         opacity: 0.4;
+    }
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 480px) {
+    .chat-widget-container {
+        right: 1rem;
+        bottom: 1rem;
+    }
+
+    .chat-window {
+        width: calc(100vw - 2rem);
+        max-width: none;
+        bottom: 70px;
+        right: 0;
+        max-height: 75vh;
+        min-height: 300px;
     }
 }
