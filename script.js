@@ -258,10 +258,25 @@ function handleSendMessage() {
     }
 }
 
+/** 將 HTML 特殊字元轉義，防止 XSS */
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+/** 偵測純文字中的 URL 並轉換為可點擊的超連結 (已轉義的 HTML 輸入) */
+function linkify(escapedHtml) {
+    return escapedHtml.replace(
+        /(https?:\/\/[^\s<]+)/g,
+        '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#6366F1; text-decoration:underline;">$1</a>'
+    );
+}
+
 function addMessage(text, type, showFeedback = false) {
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('message', type);
-    msgDiv.textContent = text;
+    msgDiv.innerHTML = linkify(escapeHtml(text));
 
     if (showFeedback && type === 'system') {
         const feedbackDiv = document.createElement('div');
@@ -315,7 +330,7 @@ function initChatHistory() {
         state.messages.forEach(msg => {
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('message', msg.type);
-            msgDiv.textContent = msg.text;
+            msgDiv.innerHTML = linkify(escapeHtml(msg.text));
 
             if (msg.showFeedback) {
                 const feedbackDiv = document.createElement('div');
