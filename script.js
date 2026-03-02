@@ -126,6 +126,19 @@ function setupEventListeners() {
     if (closeChatBtn) closeChatBtn.addEventListener('click', toggleChat);
     if (sendMessageBtn) sendMessageBtn.addEventListener('click', handleSendMessage);
     if (questionInput) {
+        questionInput.addEventListener('input', () => {
+            const count = questionInput.value.length;
+            const charCountDisplay = document.getElementById('charCount');
+            if (charCountDisplay) {
+                charCountDisplay.textContent = `${count} / 50`;
+                if (count >= 45) {
+                    charCountDisplay.classList.add('warning');
+                } else {
+                    charCountDisplay.classList.remove('warning');
+                }
+            }
+        });
+
         questionInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -187,6 +200,13 @@ function handleSendMessage() {
 
     addMessage(text, 'user');
     questionInput.value = '';
+
+    // Reset char count
+    const charCountDisplay = document.getElementById('charCount');
+    if (charCountDisplay) {
+        charCountDisplay.textContent = '0 / 50';
+        charCountDisplay.classList.remove('warning');
+    }
 
     const loadingId = addLoadingIndicator();
 
