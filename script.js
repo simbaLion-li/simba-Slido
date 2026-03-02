@@ -105,10 +105,10 @@ function renderPublicQuestions() {
 
         card.innerHTML = `
             <div class="card-header">
-                <span class="category-tag">${q.category}</span>
+                <span class="category-tag">${escapeHtml(q.category)}</span>
                 <span>${timeString}</span>
             </div>
-            <div class="question-text" style="font-size: 1rem; margin-bottom: 0.5rem;">${q.text}</div>
+            <div class="question-text" style="font-size: 1rem; margin-bottom: 0.5rem;">${escapeHtml(q.text)}</div>
         `;
         fragment.appendChild(card);
     });
@@ -170,9 +170,19 @@ function toggleChat() {
     }
 }
 
+let lastSendTime = 0;
+const SEND_COOLDOWN_MS = 5000;
+
 function handleSendMessage() {
     const text = questionInput.value.trim();
     if (!text) return;
+
+    const now = Date.now();
+    if (now - lastSendTime < SEND_COOLDOWN_MS) {
+        addMessage('⏳ 請稍候幾秒再發送下一則提問。', 'system', false);
+        return;
+    }
+    lastSendTime = now;
 
     addMessage(text, 'user');
     questionInput.value = '';
@@ -403,17 +413,17 @@ function createQuestionCard(question) {
         ? `<div class="suggested-replies">
             <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">建議回覆：</div>
             ${replies.map(reply => `
-                <button class="reply-btn" onclick="useReply(this)">${reply}</button>
+                <button class="reply-btn" onclick="useReply(this)">${escapeHtml(reply)}</button>
             `).join('')}
         </div>`
         : '';
 
     card.innerHTML = `
         <div class="card-header">
-            <span class="category-tag">${question.category || '未分類'} ${question.isHidden ? '(隱藏中)' : ''}</span>
+            <span class="category-tag">${escapeHtml(question.category || '未分類')} ${question.isHidden ? '(隱藏中)' : ''}</span>
             <span>${timeString}</span>
         </div>
-        <div class="question-text">${questionText}</div>
+        <div class="question-text">${escapeHtml(questionText)}</div>
         ${repliesHtml}
         <div style="margin-top: 1rem; text-align: right; display: flex; justify-content: flex-end; align-items: center;">
             ${visibilityBtn}
@@ -432,12 +442,18 @@ window.exportToCSV = function () {
         return;
     }
 
+    // CSV Injection 防護：移除公式起始字元
+    function sanitizeCsv(val) {
+        const s = String(val);
+        return /^[=+\-@\t\r]/.test(s) ? "'" + s : s;
+    }
+
     const bom = '\uFEFF';
     const headers = ['ID', 'Category', 'Question', 'Timestamp', 'Status', 'IsHidden'];
     const rows = state.questions.map(q => [
-        q.id,
-        q.category,
-        `"${q.text.replace(/"/g, '""')}"`,
+        sanitizeCsv(q.id),
+        sanitizeCsv(q.category),
+        `"${sanitizeCsv(q.text).replace(/"/g, '""')}"`,
         new Date(q.timestamp).toLocaleString(),
         q.status,
         q.isHidden ? 'Yes' : 'No'
@@ -468,7 +484,7 @@ window.clearAllData = function () {
             fetch(N8N_ENDPOINTS.clear, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'clear' })
+                body: JSON.stringify({ action: 'clear', token: sessionStorage.getItem('speaker_token') || '' })
             })
                 .then(() => alert('資料已清除（含 Google Sheets），場次重置完成。'))
                 .catch(err => {
@@ -494,7 +510,7 @@ window.toggleVisibility = function (id) {
             fetch(N8N_ENDPOINTS.hide, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: id, isHidden: state.questions[qIndex].isHidden })
+                body: JSON.stringify({ id: id, isHidden: state.questions[qIndex].isHidden, token: sessionStorage.getItem('speaker_token') || '' })
             }).catch(err => console.error('n8n hide error:', err));
             resetSyncTimer();
         }
@@ -595,7 +611,7 @@ window.markAsResolved = function (id) {
             fetch(N8N_ENDPOINTS.resolve, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: id })
+                body: JSON.stringify({ id: id, token: sessionStorage.getItem('speaker_token') || '' })
             }).catch(err => console.error('n8n resolve error:', err));
             resetSyncTimer();
         }
