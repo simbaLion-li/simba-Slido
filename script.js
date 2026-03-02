@@ -127,6 +127,10 @@ function setupEventListeners() {
     if (sendMessageBtn) sendMessageBtn.addEventListener('click', handleSendMessage);
     if (questionInput) {
         questionInput.addEventListener('input', () => {
+            // Auto-resize height
+            questionInput.style.height = '40px';
+            questionInput.style.height = (questionInput.scrollHeight) + 'px';
+
             const count = questionInput.value.length;
             const charCountDisplay = document.getElementById('charCount');
             if (charCountDisplay) {
@@ -200,6 +204,7 @@ function handleSendMessage() {
 
     addMessage(text, 'user');
     questionInput.value = '';
+    questionInput.style.height = '40px';
 
     // Reset char count
     const charCountDisplay = document.getElementById('charCount');

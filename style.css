@@ -261,7 +261,11 @@ body>* {
     border-radius: 10px;
     padding: 0.6rem 0.8rem;
     resize: none;
-    height: 40px;
+    min-height: 40px;
+    max-height: 150px;
+    /* Limit height to prevent taking over the screen */
+    overflow-y: hidden;
+    /* Hide scrollbar while auto-resizing */
     font-family: inherit;
     font-size: 0.93rem;
     transition: border-color 0.2s, box-shadow 0.2s;
