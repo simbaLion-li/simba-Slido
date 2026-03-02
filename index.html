@@ -12,21 +12,14 @@
 <body>
 
     <!-- Hero Section (Landing) -->
-    <div
-        style="display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center; padding: 4rem 1rem 2rem 1rem;">
-        <h1
-            style="font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-            問答互動系統</h1>
-        <p style="color: var(--text-secondary); max-width: 600px;">
-            歡迎參與本次簡報。請點擊右下角的聊天圖示提出您的問題，AI 助理將會協助回答，或將問題轉交給講者。
-        </p>
+    <div class="hero-section">
+        <h1>問答互動系統</h1>
+        <p>歡迎參與本次簡報。請點擊右下角的聊天圖示提出您的問題，AI 助理將會協助回答，或將問題轉交給講者。</p>
     </div>
 
     <!-- Public Question Board -->
     <div class="dashboard-container" style="padding-top: 0;">
-        <h2 style="text-align: center; color: var(--text-primary); margin-bottom: 2rem; font-size: 1.5rem;">
-            現場提問牆
-        </h2>
+        <h2 class="section-title">現場提問牆</h2>
         <div class="questions-grid" id="publicQuestionsGrid">
             <!-- Questions injected by JS -->
             <div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);">
