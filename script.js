@@ -628,15 +628,10 @@ function fetchPendingQuestions() {
         .then(data => {
             if (!syncEnabled) return; // 已關閉同步，忽略回應
             if (data.questions && Array.isArray(data.questions)) {
-                // 合併：保留本地 isHidden 狀態 (ID 統一轉 string)
-                const localMap = new Map(state.questions.map(q => [String(q.id), q]));
+                // 以後端 (Google Sheets) 為單一事實來源 (ID 統一轉 string)
                 state.questions = data.questions.map(remote => {
                     remote.id = String(remote.id);
-                    const local = localMap.get(remote.id);
-                    return {
-                        ...remote,
-                        isHidden: local ? local.isHidden : false
-                    };
+                    return remote;
                 });
                 saveQuestions();
                 if (speakerQuestionsGrid) renderSpeakerDashboard();
