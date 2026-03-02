@@ -16,7 +16,8 @@ const N8N_ENDPOINTS = {
     clear: `${N8N_BASE_URL}/qa/clear`,       // POST: 清除所有資料
     hide: `${N8N_BASE_URL}/qa/hide`,         // POST: 切換隱藏狀態
     auth: `${N8N_BASE_URL}/qa/auth`,         // POST: 講者登入驗證
-    verify: `${N8N_BASE_URL}/qa/verify`      // POST: Token 驗證
+    verify: `${N8N_BASE_URL}/qa/verify`,      // POST: Token 驗證
+    changePassword: `${N8N_BASE_URL}/qa/change-password` // POST: 更改密碼
 };
 
 // --- Global State ---
@@ -702,6 +703,41 @@ if (USE_N8N && N8N_BASE_URL && (speakerQuestionsGrid || document.getElementById(
 }
 
 // --- Login Modal Implementations ---
+
+// --- Change Password ---
+window.changePassword = function () {
+    const newPw = prompt('請輸入新的講者密碼（至少 4 個字元）：');
+    if (!newPw) return;
+    if (newPw.length < 4) {
+        alert('密碼長度至少 4 個字元。');
+        return;
+    }
+
+    const token = sessionStorage.getItem('speaker_token') || '';
+    if (!token) {
+        alert('Session 已過期，請重新登入。');
+        window.location.href = 'index.html';
+        return;
+    }
+
+    fetch(N8N_ENDPOINTS.changePassword, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, newPassword: newPw })
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ 密碼已成功更新！下次登入請使用新密碼。');
+            } else {
+                alert('❌ 更改失敗：' + (data.message || '未知錯誤'));
+            }
+        })
+        .catch(err => {
+            console.error('Change password error:', err);
+            alert('連線失敗，請稍後再試。');
+        });
+}
 
 function closeModal() {
     loginModal.classList.add('hidden');
