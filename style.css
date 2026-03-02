@@ -877,10 +877,14 @@ body>* {
     .chat-window {
         width: calc(100vw - 2rem);
         max-width: none;
-        bottom: 70px;
+        bottom: 80px;
+        /* More clearance from original button */
         right: 0;
-        max-height: 75vh;
-        min-height: 300px;
+        max-height: 65vh;
+        /* Lowered to give more room for keyboard */
+        max-height: 65dvh;
+        /* Use dynamic viewport height if supported */
+        min-height: 250px;
     }
 
     .action-buttons button,
