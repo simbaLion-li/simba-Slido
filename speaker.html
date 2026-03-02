@@ -13,45 +13,35 @@
 
     <div class="dashboard-container">
         <header class="dashboard-header">
-            <div>
-                <h1 style="margin: 0;">待回覆問題</h1>
-                <p style="color: var(--text-secondary); margin-top: 0.5rem;">來自聽眾的即時提問</p>
+            <div class="header-title-group">
+                <h1>待回覆問題</h1>
+                <p>來自聽眾的即時提問</p>
             </div>
-            <div style="display: flex; gap: 1rem;">
-                <a href="index.html" style="text-decoration: none; display: flex; align-items: center;">
-                    <button
-                        style="padding: 0.5rem 1rem; border: 1px solid #7C3AED; color: #7C3AED; background: white; border-radius: 6px; cursor: pointer; height: 100%;">
-                        ← 回到聽眾頁面
-                    </button>
+            <div class="action-buttons">
+                <a href="index.html" class="btn-outline-primary">
+                    ← 回到聽眾頁面
                 </a>
-                <button onclick="exportToCSV()"
-                    style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; border-radius: 6px; cursor: pointer; color: #475569;">
+                <button onclick="exportToCSV()" class="btn-secondary">
                     匯出 CSV
                 </button>
-                <button id="syncToggleBtn" onclick="toggleSync()"
-                    style="padding: 0.5rem 1rem; border: 1px solid #bbf7d0; background: #dcfce7; border-radius: 6px; cursor: pointer; color: #16a34a; font-weight: 600; display: flex; align-items: center; gap: 0.35rem;">
-                    <span id="syncIndicator"
-                        style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#16a34a; animation: pulse 1.5s infinite;"></span>
+                <button id="syncToggleBtn" onclick="toggleSync()" class="btn-sync">
+                    <span id="syncIndicator" class="sync-dot"></span>
                     自動同步：ON
                 </button>
-                <button onclick="clearAllData()"
-                    style="padding: 0.5rem 1rem; border: 1px solid #fee2e2; background: #fef2f2; border-radius: 6px; cursor: pointer; color: #dc2626;">
+                <button onclick="clearAllData()" class="btn-danger">
                     清除所有資料
                 </button>
-                <button onclick="location.reload()"
-                    style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; border-radius: 6px; cursor: pointer;">
+                <button onclick="location.reload()" class="btn-secondary">
                     重新整理
                 </button>
             </div>
         </header>
 
-        <div class="tabs" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; border-bottom: 1px solid #e2e8f0;">
-            <button class="tab-btn active" data-tab="pending" onclick="switchTab('pending')"
-                style="padding: 0.5rem 1rem; border: none; background: none; border-bottom: 2px solid var(--primary-color); font-weight: 600; color: var(--primary-color); cursor: pointer;">
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="pending" onclick="switchTab('pending')">
                 待回覆問題
             </button>
-            <button class="tab-btn" data-tab="resolved" onclick="switchTab('resolved')"
-                style="padding: 0.5rem 1rem; border: none; background: none; border-bottom: 2px solid transparent; color: var(--text-secondary); cursor: pointer;">
+            <button class="tab-btn" data-tab="resolved" onclick="switchTab('resolved')">
                 已解決
             </button>
         </div>

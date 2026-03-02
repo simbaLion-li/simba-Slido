@@ -663,15 +663,9 @@ function updateSyncButton(isOn) {
     if (!btn) return;
 
     if (isOn) {
-        btn.style.border = '1px solid #bbf7d0';
-        btn.style.background = '#dcfce7';
-        btn.style.color = '#16a34a';
-        btn.innerHTML = '<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#16a34a; animation: pulse 1.5s infinite;"></span> 自動同步：ON';
+        btn.innerHTML = '<span id="syncIndicator" class="sync-dot"></span> 自動同步：ON';
     } else {
-        btn.style.border = '1px solid #e2e8f0';
-        btn.style.background = '#f1f5f9';
-        btn.style.color = '#64748b';
-        btn.innerHTML = '<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#94a3b8;"></span> 自動同步：OFF';
+        btn.innerHTML = '<span id="syncIndicator" class="sync-dot" style="background:#94a3b8; animation:none;"></span> 自動同步：OFF';
     }
 }
 
