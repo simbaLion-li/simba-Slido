@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body style="visibility: hidden;">
 
     <div class="dashboard-container">
         <header class="dashboard-header">
@@ -59,6 +59,7 @@
     <script>
         // Special initialization for Speaker Page
         document.addEventListener('DOMContentLoaded', () => {
+            verifySpeakerSession();
             renderSpeakerDashboard();
         });
     </script>

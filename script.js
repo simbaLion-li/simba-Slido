@@ -13,8 +13,10 @@ const N8N_ENDPOINTS = {
     pending: `${N8N_BASE_URL}/qa/pending`,   // GET:  讀取待回覆
     resolve: `${N8N_BASE_URL}/qa/resolve`,   // POST: 標記已解決
     escalate: `${N8N_BASE_URL}/qa/escalate`, // POST: 直接寫入 (跳過 AI)
-    clear: `${N8N_BASE_URL}/qa/clear`,        // POST: 清除所有資料
-    hide: `${N8N_BASE_URL}/qa/hide`            // POST: 切換隱藏狀態
+    clear: `${N8N_BASE_URL}/qa/clear`,       // POST: 清除所有資料
+    hide: `${N8N_BASE_URL}/qa/hide`,         // POST: 切換隱藏狀態
+    auth: `${N8N_BASE_URL}/qa/auth`,         // POST: 講者登入驗證
+    verify: `${N8N_BASE_URL}/qa/verify`      // POST: Token 驗證
 };
 
 // --- Global State ---
@@ -48,7 +50,7 @@ const passwordInput = document.getElementById('passwordInput');
 const submitPasswordBtn = document.getElementById('submitPasswordBtn');
 const loginError = document.getElementById('loginError');
 
-const SPEAKER_PASSWORD = 'M&WttJ&cLSJ5NPN2mtzfeUu!eY&u8h';
+
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -462,6 +464,7 @@ window.clearAllData = function () {
 
         // n8n: 同步清除 Google Sheets
         if (USE_N8N && N8N_BASE_URL) {
+            resetSyncTimer();
             fetch(N8N_ENDPOINTS.clear, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -635,7 +638,7 @@ function startSync() {
     if (syncIntervalId) return;
     syncEnabled = true;
     fetchPendingQuestions();
-    syncIntervalId = setInterval(fetchPendingQuestions, 10000);
+    syncIntervalId = setInterval(fetchPendingQuestions, 30000);
     updateSyncButton(true);
     console.log('[Sync] Started');
 }
@@ -654,7 +657,7 @@ function stopSync() {
 function resetSyncTimer() {
     if (!syncEnabled || !syncIntervalId) return;
     clearInterval(syncIntervalId);
-    syncIntervalId = setInterval(fetchPendingQuestions, 10000);
+    syncIntervalId = setInterval(fetchPendingQuestions, 30000);
     console.log('[Sync] Timer reset');
 }
 
@@ -682,8 +685,8 @@ window.toggleSync = function () {
     }
 };
 
-// Auto-start polling if n8n is enabled and we're on the speaker page
-if (USE_N8N && N8N_BASE_URL && speakerQuestionsGrid) {
+// Auto-start polling if n8n is enabled and we're on a page that needs sync
+if (USE_N8N && N8N_BASE_URL && (speakerQuestionsGrid || document.getElementById('publicQuestionsGrid'))) {
     startSync();
 }
 
@@ -697,14 +700,78 @@ function closeModal() {
 
 function checkPassword() {
     const input = passwordInput.value;
-    if (input === SPEAKER_PASSWORD) {
-        loginError.textContent = '';
-        window.location.href = 'speaker.html';
+    if (!input) return;
+
+    // Disable button to prevent rapid submissions
+    submitPasswordBtn.disabled = true;
+    submitPasswordBtn.textContent = '驗證中...';
+
+    if (USE_N8N && N8N_BASE_URL) {
+        fetch(N8N_ENDPOINTS.auth, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: input })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.token) {
+                    loginError.textContent = '';
+                    sessionStorage.setItem('speaker_token', data.token);
+                    window.location.href = 'speaker.html';
+                } else {
+                    loginError.textContent = '密碼錯誤，請重試。';
+                    passwordInput.classList.add('shake');
+                    setTimeout(() => passwordInput.classList.remove('shake'), 500);
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
+            })
+            .catch(err => {
+                console.error('Auth error:', err);
+                loginError.textContent = '連線失敗，請稍後再試。';
+            })
+            .finally(() => {
+                submitPasswordBtn.disabled = false;
+                submitPasswordBtn.textContent = '確認';
+            });
     } else {
-        loginError.textContent = '密碼錯誤，請重試。';
-        passwordInput.classList.add('shake');
-        setTimeout(() => passwordInput.classList.remove('shake'), 500);
-        passwordInput.value = '';
-        passwordInput.focus();
+        // Mock mode fallback
+        sessionStorage.setItem('speaker_token', 'mock-token');
+        window.location.href = 'speaker.html';
+    }
+}
+
+// --- Speaker Session Verification ---
+function verifySpeakerSession() {
+    const token = sessionStorage.getItem('speaker_token');
+
+    if (!token) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    if (USE_N8N && N8N_BASE_URL) {
+        fetch(N8N_ENDPOINTS.verify, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.valid) {
+                    document.body.style.visibility = 'visible';
+                } else {
+                    sessionStorage.removeItem('speaker_token');
+                    window.location.href = 'index.html';
+                }
+            })
+            .catch(err => {
+                console.error('Token verify error:', err);
+                // Graceful degradation: allow access on network error if token exists
+                document.body.style.visibility = 'visible';
+            });
+    } else {
+        // Mock mode
+        document.body.style.visibility = 'visible';
     }
 }
