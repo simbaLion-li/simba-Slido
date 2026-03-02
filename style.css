@@ -239,20 +239,6 @@ body>* {
     border-top: 1px solid #e8edf2;
     display: flex;
     gap: 0.5rem;
-    align-items: flex-start;
-    /* Align to top for character count */
-}
-
-.char-count {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    text-align: right;
-    padding-right: 2px;
-}
-
-.char-count.warning {
-    color: var(--accent-error);
-    font-weight: 600;
 }
 
 .chat-input-area textarea {
@@ -261,11 +247,7 @@ body>* {
     border-radius: 10px;
     padding: 0.6rem 0.8rem;
     resize: none;
-    min-height: 40px;
-    max-height: 150px;
-    /* Limit height to prevent taking over the screen */
-    overflow-y: hidden;
-    /* Hide scrollbar while auto-resizing */
+    height: 40px;
     font-family: inherit;
     font-size: 0.93rem;
     transition: border-color 0.2s, box-shadow 0.2s;

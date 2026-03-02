@@ -126,28 +126,16 @@ function setupEventListeners() {
     if (closeChatBtn) closeChatBtn.addEventListener('click', toggleChat);
     if (sendMessageBtn) sendMessageBtn.addEventListener('click', handleSendMessage);
     if (questionInput) {
-        questionInput.addEventListener('input', () => {
-            // Auto-resize height
-            questionInput.style.height = '40px';
-            questionInput.style.height = (questionInput.scrollHeight) + 'px';
-
-            const count = questionInput.value.length;
-            const charCountDisplay = document.getElementById('charCount');
-            if (charCountDisplay) {
-                charCountDisplay.textContent = `${count} / 50`;
-                if (count >= 45) {
-                    charCountDisplay.classList.add('warning');
-                } else {
-                    charCountDisplay.classList.remove('warning');
-                }
-            }
-        });
-
         questionInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 handleSendMessage();
             }
+        });
+        // Auto-resize textarea as user types
+        questionInput.addEventListener('input', () => {
+            questionInput.style.height = 'auto';
+            questionInput.style.height = Math.min(questionInput.scrollHeight, 100) + 'px';
         });
     }
 
@@ -194,6 +182,10 @@ const SEND_COOLDOWN_MS = 5000;
 function handleSendMessage() {
     const text = questionInput.value.trim();
     if (!text) return;
+    if (text.length > 50) {
+        addMessage('⚠️ 問題長度不得超過 50 字。', 'system', false);
+        return;
+    }
 
     const now = Date.now();
     if (now - lastSendTime < SEND_COOLDOWN_MS) {
@@ -204,14 +196,7 @@ function handleSendMessage() {
 
     addMessage(text, 'user');
     questionInput.value = '';
-    questionInput.style.height = '40px';
-
-    // Reset char count
-    const charCountDisplay = document.getElementById('charCount');
-    if (charCountDisplay) {
-        charCountDisplay.textContent = '0 / 50';
-        charCountDisplay.classList.remove('warning');
-    }
+    questionInput.style.height = 'auto';
 
     const loadingId = addLoadingIndicator();
 
